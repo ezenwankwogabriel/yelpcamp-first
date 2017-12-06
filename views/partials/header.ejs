@@ -25,6 +25,21 @@
                 </div>
             </div>
         </nav>
-        
+        <div class="container">
+            <% if(error && error.length>0){%>
+            <div class="alert alert-danger" role="alert">
+                 <a href="#" class="alert-link">
+                     <%= error %>
+                 </a>
+            </div>
+            <% } %> 
+            <% if(success && success.length>0){%>            
+            <div class="alert alert-success" role="alert">
+                 <a href="#" class="alert-link">
+                     <%= success %>
+                 </a>
+            </div>
+            <% } %> 
+        </div>
         
    

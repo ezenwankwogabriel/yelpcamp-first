@@ -6,10 +6,7 @@ var passport    = require("passport");
 var  User       = require("../models/user"); 
 
 
-router.use(function(req, res, next){
-    res.locals.currentUser = req.user;
-    next();
-});
+
 
 //lANDING PAGE
 router.get("/", function(req, res) {
@@ -26,10 +23,11 @@ router.post("/register", function(req, res){
     var newUser=new User({username: req.body.username})
     User.register(newUser, req.body.password, function(err, user){
         if(err){
-            console.log(err);
+            req.flash("error", err.message);
             return res.render("register");
         }
         passport.authenticate("local")(req, res, function(){
+            req.flash("success", "Welcome to Yelpcamp" + user.username);
                 res.redirect("/campgrounds");
         });
     })
@@ -52,14 +50,8 @@ router.post("/login", passport.authenticate("local",
 //logout route
 router.get("/logout", function(req, res) {
     req.logout();
+    req.flash("success", "logged you out");
     res.redirect("/campgrounds");
 });
-
-function isLoggedIn(req, res, next){
-    if(req.isAuthenticated()){
-        return next()
-    }
-    res.redirect("/login")
-}
 
 module.exports = router;
