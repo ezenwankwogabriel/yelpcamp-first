@@ -66,11 +66,70 @@ router.get("/:id", function(req, res) {
     });
 });
 
+//EDIT CAMPGROUND ROUTEE
+router.get("/:id/edit", checkCampgroundOwnership, function(req, res){
+    Campground.findById(req.params.id, function(err, foundCampground){
+        if(err){
+            console.log("error finding ID");
+        } else{
+          res.render("campgrounds/edit", {campground: foundCampground});
+
+        }
+    });
+});
+
+
+//UPDATE CAMPGROUND ROUTE
+router.put("/:id", checkCampgroundOwnership, function(req, res){
+    //find and update the correct campground
+        //could either do the below, or put all inside a campground array in the edit.ejs file
+        //var data={name:req.body.name, image:req.body.image, description:req.body.description}
+    Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
+        if(err){
+            res.redirect("/campgrounds")
+        } else {
+            //redirect somewhere(showPage)
+            res.redirect("/campgrounds/" + req.params.id)
+        }
+    });
+});
+
+//DESTROY CAMPGROUND ROUTE
+router.delete("/:id", checkCampgroundOwnership, function(req, res){
+    Campground.findByIdAndRemove(req.params.id, function(err){
+        if(err){
+            res.redirect("/campgrounds");
+        } else {
+            res.redirect("/campgrounds");
+        }
+    })
+});
+
+//middleWare
 function isLoggedIn(req, res, next){
     if(req.isAuthenticated()){
         return next()
     }
     res.redirect("/login")
+}
+
+function checkCampgroundOwnership(req, res, next){
+    if(req.isAuthenticated()){    
+    Campground.findById(req.params.id, function(err, foundCampground){
+       if(err){
+           res.redirect("back");
+       } else{
+           //does user own the campground?(Authorization)
+          if(foundCampground.author.id.equals(req.user.id)){
+              next();
+          } else{
+              res.redirect("back");
+          }
+       }
+    });
+} else {
+    res.redirect("back");
+    }
 }
 
 module.exports = router;
